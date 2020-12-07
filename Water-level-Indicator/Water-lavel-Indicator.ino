@@ -53,6 +53,8 @@
 #define TANK_TOP_DISTANCE 25    // Distance of the water lavel, when the tank is full
 #define TANK_REDIUS 50
 
+#define MAX_DELAY_ON_ENGINE_OFF 600000UL
+
 
 // Initializing the library with the numbers of the interface pins
 LiquidCrystal lcd(LCD_RS, LCD_E, LCD_D4, LCD_D3, LED_D2, LED_D1);
@@ -66,6 +68,7 @@ RunningMedian running_durations = RunningMedian(ITER_M);
 
 //Global Variables
 byte engine_state = HIGH;
+unsigned long delay_on_engine_off = 0;
 float temp = 0;
 float humidity = 0;
 float water_percentage = 0;
@@ -87,7 +90,7 @@ byte degree[] = {
 void setup(){
   // set up the LCD's number of columns and rows:
   analogWrite(6, 75);
-  
+
   pinMode(TRIGGER_PIN, OUTPUT); // Sets the trigPin as an OUTPUT
   pinMode(ECHO_PIN, INPUT);     // Sets the echoPin as an INPUT
   pinMode(ENGINE_INT, INPUT_PULLUP);   //Sets the ENGINE_INT pin as INPUT_PULLUP
@@ -144,7 +147,7 @@ void loop(){
     set_tank_distance();
     calulate_volume();
     calculate_water_percentage();
-    delay(1000*60*10);
+    delay(delay_on_engine_off);
   }
 }
 
@@ -155,10 +158,12 @@ void engine_isr(){
   #endif
   if(engine_state){
     lcd.display();
+    delay_on_engine_off = 0UL;
   }
   else{
     lcd.clear();
     lcd.noDisplay();
+    delay_on_engine_off = MAX_DELAY_ON_ENGINE_OFF;
   }
   
 }
