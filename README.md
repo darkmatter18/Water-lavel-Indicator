@@ -1,3 +1,2 @@
-<img src="./images/circuit.svg" alt="Logo">
-
-![Logo](./images/circuit.svg =50x)
+<h1>Water Lavel Indicator</h1>
+<img align='right' src="./images/arduino.png" width="230">
