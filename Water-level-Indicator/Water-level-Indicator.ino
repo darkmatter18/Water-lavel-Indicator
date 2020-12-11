@@ -277,15 +277,22 @@ float get_distance_median(){
   float duration = running_durations.getMedian();
   running_durations.clear();
   
-  Serial.print("Duration: ");
-  Serial.print(duration);
-  Serial.print(" us ");
+  #if SERIAL_DEBUG
+    Serial.print("Duration: ");
+    Serial.print(duration);
+    Serial.print(" us ");
+  #endif
+  
   // Calculating the distance
   float distance = duration * SPEED_OF_SOUND / 2; // Speed of sound wave divided by 2 (go and back)
   // Displays the distance on the Serial Monitor
-  Serial.print("Distance: ");
-  Serial.print(distance);
-  Serial.println(" cm");
+  
+  #if SERIAL_DEBUG
+    Serial.print("Distance: ");
+    Serial.print(distance);
+    Serial.println(" cm");
+  #endif
+  
   return distance;
 }
 
@@ -298,7 +305,10 @@ unsigned long measure_single_duration(){
     digitalWrite(TRIGGER_PIN, LOW);
     // Reads the echoPin, returns the sound wave travel time in microseconds
     long d = pulseIn(ECHO_PIN, HIGH);
-    Serial.print("duration");
-    Serial.println(d);
+    
+    #if SERIAL_DEBUG
+      Serial.print("duration");
+      Serial.println(d);
+    #endif
     return d;
 }
