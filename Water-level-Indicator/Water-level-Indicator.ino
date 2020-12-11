@@ -22,10 +22,11 @@
 #include <DHT.h>
 #include <DHT_U.h>
 
-#define SERIAL_DEBUG 0 //Mode for serial debug, 0 -> No debug, 1 -> Debug over serial is on
+#define SERIAL_DEBUG 1 //Mode for serial debug, 0 -> No debug, 1 -> Debug over serial is on
 
 /**
  * Define all the pins
+ * Pin Used Interrupts (2, 3), LCD (4, 5, 6, 7, 8, 9), DHT11 (10), Ultra Sonic Sensor (11, 12)
  */
 // LCD pins
 #define LCD_D4 9
@@ -34,6 +35,7 @@
 #define LED_D1 6
 #define LCD_RS 5
 #define LCD_E 4
+#define LCD_LED A0
 
 // Pins for sensors
 #define DHT_PIN 10
@@ -96,6 +98,9 @@ void setup(){
   pinMode(ENGINE_INT, INPUT_PULLUP);   //Sets the ENGINE_INT pin as INPUT_PULLUP
   pinMode(BUZZER_INT, INPUT_PULLUP);    //Sets the BUZZER_INT pin as INPUT_PULLUP
 
+  pinMode(LCD_LED, OUTPUT);             // Sets the LCD LED pin as OUTPUT
+  digitalWrite(LCD_LED, HIGH);          // Liting the backlit of the LCD
+
   attachInterrupt(digitalPinToInterrupt(ENGINE_INT), engine_isr, FALLING);   //Setting the ISR for ENGINE_INT to engine_isr function
   attachInterrupt(digitalPinToInterrupt(BUZZER_INT), buzzer_isr, FALLING);     //Setting the ISR for BUZZER_INT to buzzer_isr function
   
@@ -149,7 +154,13 @@ void loop(){
     set_tank_distance();
     calulate_volume();
     calculate_water_percentage();
-    delay(delay_on_engine_off);
+    #if SERIAL_DEBUG
+      Serial.println(F("Started long Delay"));
+    #endif
+    engine_at_off_state_delay();
+    #if SERIAL_DEBUG
+      Serial.println(F("Ended Long de"));
+    #endif
   }
 }
 
@@ -161,11 +172,13 @@ void engine_isr(){
   if(engine_state){
     lcd.display();
     print_calculating();
+    digitalWrite(LCD_LED, HIGH);
     delay_on_engine_off = 0UL;
   }
   else{
     lcd.clear();
     lcd.noDisplay();
+    digitalWrite(LCD_LED, LOW);
     delay_on_engine_off = MAX_DELAY_ON_ENGINE_OFF;
   }
   
@@ -187,7 +200,7 @@ void print_copyright(){
 
 void print_calculating(){
   lcd.setCursor(0, 0);
-  lcd.print("Calculating...")
+  lcd.print("Calculating...");
 }
 
 void print_data_to_lcd(){
@@ -267,6 +280,14 @@ void calulate_volume(){
   #endif
 }
 
+// void engine_at_off_state_delay(){
+//   for(int j=0; j<MAX_DELAY_ON_ENGINE_OFF; j++){
+//    delay(1);
+//    // See if it's time to bail
+//    if(timeToBail)
+//      return;
+//    }
+// }
 
 void set_tank_distance(){
   distance = get_distance_median();
