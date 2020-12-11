@@ -109,6 +109,8 @@ void setup(){
   delay(2000);
   lcd.clear();
 
+  print_calculating();
+
   #if SERIAL_DEBUG
     Serial.begin(9600);
   #endif
@@ -158,6 +160,7 @@ void engine_isr(){
   #endif
   if(engine_state){
     lcd.display();
+    print_calculating();
     delay_on_engine_off = 0UL;
   }
   else{
@@ -180,6 +183,11 @@ void print_copyright(){
   lcd.print("Hello From");
   lcd.setCursor(4, 1);
   lcd.print("Arkadip");
+}
+
+void print_calculating(){
+  lcd.setCursor(0, 0);
+  lcd.print("Calculating...")
 }
 
 void print_data_to_lcd(){
