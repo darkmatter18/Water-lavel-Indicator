@@ -166,6 +166,7 @@ void engine_isr(){
   #endif
   if(engine_state){
     lcd.display();
+    lcd.clear();
     print_calculating();
     digitalWrite(LCD_LED, HIGH);
     stop_delay_at_engine_off = HIGH;  //Stop the engine delay when the engine is starting
