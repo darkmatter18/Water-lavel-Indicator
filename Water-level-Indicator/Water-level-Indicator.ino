@@ -26,7 +26,7 @@
 
 /**
  * Define all the pins
- * Pin Used Interrupts (2, 3), LCD (4, 5, 6, 7, 8, 9), DHT11 (10), Ultra Sonic Sensor (11, 12)
+ * Pin Used Interrupts (2, 3), LCD (4, 5, 6, 7, 8, 9), DHT11 (10), Ultra Sonic Sensor (11, 12), LCD Backlit (A0), Buzzer (A1)
  */
 // LCD pins
 #define LCD_D4 9
@@ -42,13 +42,16 @@
 #define TRIGGER_PIN 11
 #define ECHO_PIN 12
 
+//Buzzer pin
+#define BUZZER_PIN A1
+
 // Interupt Pins
 #define ENGINE_INT 2
 #define BUZZER_INT 3
 
 // Constants for distances
 #define SPEED_OF_SOUND 0.034 // unit(cm/us)
-#define ITER_M 10
+#define ITER_M 20
 
 // Tank dimention
 #define TANK_BUTTOM_DISTANCE 104    // Distance of the water lavel, when the tank is empty
@@ -71,6 +74,7 @@ RunningMedian running_durations = RunningMedian(ITER_M);
 //Global Variables
 byte engine_state = HIGH;
 byte stop_delay_at_engine_off = LOW;
+byte buzzer_state = HIGH;
 float temp = 0;
 float humidity = 0;
 float water_percentage = 0;
@@ -157,6 +161,8 @@ void loop(){
 
     engine_at_off_state_delay();
   }
+
+  check_and_blow_buzzer();
 }
 
 void engine_isr(){
@@ -184,7 +190,26 @@ void buzzer_isr(){
   #if SERIAL_DEBUG
     Serial.println(F("Buzzer Flipped"));
   #endif
+  if (buzzer_state == HIGH){
+    buzzer_state == LOW;
+    noTone(BUZZER_PIN);
+    #if SERIAL_DEBUG
+      Serial.println(F("Buzzer Turned off"));
+    #endif
+  }
   return;
+}
+
+void check_and_blow_buzzer(){
+  if (water_percentage > 95){
+    if (buzzer_state == HIGH){
+      //Turn on buzzer
+      tone(BUZZER_PIN, 2000, (10*60*1000)UL); //Buzz for 10 minute
+    }
+  }
+  else {
+    buzzer_state = HIGH;
+  }
 }
 
 void print_copyright(){
