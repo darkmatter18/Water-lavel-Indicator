@@ -70,7 +70,7 @@ RunningMedian running_durations = RunningMedian(ITER_M);
 
 //Global Variables
 byte engine_state = HIGH;
-unsigned long delay_on_engine_off = 0;
+byte stop_delay_at_engine_off = LOW;
 float temp = 0;
 float humidity = 0;
 float water_percentage = 0;
@@ -154,13 +154,8 @@ void loop(){
     set_tank_distance();
     calulate_volume();
     calculate_water_percentage();
-    #if SERIAL_DEBUG
-      Serial.println(F("Started long Delay"));
-    #endif
+
     engine_at_off_state_delay();
-    #if SERIAL_DEBUG
-      Serial.println(F("Ended Long de"));
-    #endif
   }
 }
 
@@ -173,13 +168,13 @@ void engine_isr(){
     lcd.display();
     print_calculating();
     digitalWrite(LCD_LED, HIGH);
-    delay_on_engine_off = 0UL;
+    stop_delay_at_engine_off = HIGH;  //Stop the engine delay when the engine is starting
   }
   else{
     lcd.clear();
     lcd.noDisplay();
     digitalWrite(LCD_LED, LOW);
-    delay_on_engine_off = MAX_DELAY_ON_ENGINE_OFF;
+    stop_delay_at_engine_off = LOW; //Start the engine delay when the engine is stopping
   }
   
 }
@@ -280,14 +275,14 @@ void calulate_volume(){
   #endif
 }
 
-// void engine_at_off_state_delay(){
-//   for(int j=0; j<MAX_DELAY_ON_ENGINE_OFF; j++){
-//    delay(1);
-//    // See if it's time to bail
-//    if(timeToBail)
-//      return;
-//    }
-// }
+void engine_at_off_state_delay(){
+  for(int j=0; j<MAX_DELAY_ON_ENGINE_OFF; j++){
+   delay(1);
+   // See if it's time to bail
+   if(stop_delay_at_engine_off)
+     return;
+   }
+}
 
 void set_tank_distance(){
   distance = get_distance_median();
