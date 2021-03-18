@@ -42,8 +42,8 @@ byte self_stop_state = LOW;
 // float temp = 0;
 // float humidity = 0;
 // float water_percentage = 0;
-// float ltr = 0;
 float distance = 0;
+float ltr = 0;
 
 // Degree character for LCD display
 byte degree[] = {
@@ -88,7 +88,7 @@ void setup(){
 void loop(){
   // Read data from the Sonar sensor and calculate the water volume, modify the global varibles (distance, ltr)
   set_tank_distance();
-  // calulate_volume();
+  calulate_volume();
   // calculate_water_percentage();
 }
 
@@ -119,20 +119,20 @@ void print_calculating(){
 //   water_percentage = (TANK_BUTTOM_DISTANCE - distance)/(TANK_BUTTOM_DISTANCE - TANK_TOP_DISTANCE) * 100;
 // }
 
-// void calulate_volume(){
-//   double volume = PI * TANK_REDIUS * TANK_REDIUS * (TANK_BUTTOM_DISTANCE - distance);
-//   ltr = volume / 1000.0;
+void calulate_volume(){
+  double volume = PI * TANK_REDIUS * TANK_REDIUS * (TANK_BUTTOM_DISTANCE - distance);
+  ltr = volume / 1000.0;
 
-//   #if SERIAL_DEBUG
-//     Serial.print("Volume: ");
-//     Serial.print(volume);
-//     Serial.println("cc");
+  #if SERIAL_DEBUG
+    Serial.print("Volume: ");
+    Serial.print(volume);
+    Serial.println("cc");
 
-//     Serial.print("LTR: ");
-//     Serial.print(ltr);
-//     Serial.println("ltr");
-//   #endif
-// }
+    Serial.print("LTR: ");
+    Serial.print(ltr);
+    Serial.println("ltr");
+  #endif
+}
 
 
 void set_tank_distance(){
