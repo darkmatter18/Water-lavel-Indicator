@@ -46,16 +46,16 @@ byte self_stop_state = LOW;
 // float distance = 0;
 
 // Degree character for LCD display
-// byte degree[] = {
-//   B11100,
-//   B10100,
-//   B11100,
-//   B00000,
-//   B00000,
-//   B00000,
-//   B00000,
-//   B00000
-// };
+byte degree[] = {
+  B11100,
+  B10100,
+  B11100,
+  B00000,
+  B00000,
+  B00000,
+  B00000,
+  B00000
+};
 
 void setup(){
   pinMode(TRIGGER_PIN, OUTPUT);       // Sets the TRIGGER_PIN as an OUTPUT (5)
@@ -71,6 +71,7 @@ void setup(){
 
   // Start the LCD
   lcd.begin();
+  lcd.createChar(0, degree);
   lcd.backlight();
 
   // Start the DHT11
