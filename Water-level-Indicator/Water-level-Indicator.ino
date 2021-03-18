@@ -32,7 +32,7 @@ LiquidCrystal_I2C lcd(LCD_I2C_ADDR, LCD_WIDTH, LCD_HEIGHT);
 DHT dht(DHT_PIN, DHT11);
 
 // running medium for storing distance 
-RunningMedian running_durations = RunningMedian(ITER_M);
+RunningMedian running_distance = RunningMedian(ITER_M);
 
 //Global Variables
 byte buzzer_state = LOW;
@@ -43,7 +43,7 @@ byte self_stop_state = LOW;
 // float humidity = 0;
 // float water_percentage = 0;
 // float ltr = 0;
-// float distance = 0;
+float distance = 0;
 
 // Degree character for LCD display
 byte degree[] = {
@@ -86,16 +86,10 @@ void setup(){
 }
 
 void loop(){
-  // #if SERIAL_DEBUG
-  //   Serial.println(engine_state);
-  // #endif
-  // if(engine_state){
-  //   // Read data from the Sonar sensor and calculate the water volume, modify the global varibles (distance, ltr)
-  //   set_tank_distance();
-  //   calulate_volume();
-  //   calculate_water_percentage();
-  // }
-
+  // Read data from the Sonar sensor and calculate the water volume, modify the global varibles (distance, ltr)
+  set_tank_distance();
+  // calulate_volume();
+  // calculate_water_percentage();
 }
 
 void buzzer_Isr(){
@@ -141,55 +135,64 @@ void print_calculating(){
 // }
 
 
-// void set_tank_distance(){
-//   distance = get_distance_median();
+void set_tank_distance(){
+  distance = get_distance_median();
   
-//   #if SERIAL_DEBUG
-//     Serial.print(distance);
-//     Serial.println("cm");
-//   #endif
-// }
+  #if SERIAL_DEBUG
+    Serial.print(distance);
+    Serial.println("cm");
+  #endif
+}
 
-// float get_distance_median(){
-//   for(int i=0; i<ITER_M; i++){
-//     running_durations.add((float)measure_single_duration());
-//     delay(300);
-//   }
-//   float duration = running_durations.getMedian();
-//   running_durations.clear();
-  
-//   #if SERIAL_DEBUG
-//     Serial.print("Duration: ");
-//     Serial.print(duration);
-//     Serial.print(" us ");
-//   #endif
-  
-//   // Calculating the distance
-//   float distance = duration * SPEED_OF_SOUND / 2; // Speed of sound wave divided by 2 (go and back)
-//   // Displays the distance on the Serial Monitor
-  
-//   #if SERIAL_DEBUG
-//     Serial.print("Distance: ");
-//     Serial.print(distance);
-//     Serial.println(" cm");
-//   #endif
-  
-//   return distance;
-// }
+/**
+ * @brief Get the distance median object
+ * using RunningMedian
+ * 
+ * @return float (distance in cm)
+ */
+float get_distance_median(){
+  for(int i=0; i<ITER_M; i++){
+    // Calculating the distance
+    unsigned long single_distance = measure_single_duration() * SPEED_OF_SOUND / 2;
 
-// unsigned long measure_single_duration(){
-//     digitalWrite(TRIGGER_PIN, LOW);
-//     delayMicroseconds(2);
-//     // Sets the trigPin HIGH (ACTIVE) for 10 microseconds
-//     digitalWrite(TRIGGER_PIN, HIGH);
-//     delayMicroseconds(10);
-//     digitalWrite(TRIGGER_PIN, LOW);
-//     // Reads the echoPin, returns the sound wave travel time in microseconds
-//     long d = pulseIn(ECHO_PIN, HIGH);
+    // Adding the calculated distance in running_distance
+    running_distance.add((float)single_distance);
+    delay(300);
+  }
+
+  // Get the median distance and clear the buffer
+  float distance = running_distance.getMedian();
+  running_distance.clear();
+  
+  #if SERIAL_DEBUG
+    Serial.print("Distance: ");
+    Serial.print(distance);
+    Serial.println(" cm");
+  #endif
+  
+  return distance;
+}
+
+/**
+ * @brief This function measures the duration of the sound wave taking to come and go.
+ * The function Triggers the sensor by using the trigger pin
+ * and uses pulseIn to get the pulse from the sensors echo to get the 
+ * 
+ * @return unsigned long (duration in micro second)
+ */
+unsigned long measure_single_duration(){
+    digitalWrite(TRIGGER_PIN, LOW);
+    delayMicroseconds(2);
+    // Sets the trigPin HIGH (ACTIVE) for 10 microseconds
+    digitalWrite(TRIGGER_PIN, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(TRIGGER_PIN, LOW);
+    // Reads the echoPin, returns the sound wave travel time in microseconds
+    unsigned long d = pulseIn(ECHO_PIN, HIGH);
     
-//     #if SERIAL_DEBUG
-//       Serial.print("duration");
-//       Serial.println(d);
-//     #endif
-//     return d;
-// }
+    #if SERIAL_DEBUG
+      Serial.print("duration");
+      Serial.println(d);
+    #endif
+    return d;
+}
