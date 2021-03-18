@@ -102,13 +102,27 @@ void loop(){
     #endif
 }
 
+/**
+ * @brief Buzzer Interrupt service routine
+ * 
+ */
 void buzzer_Isr(){
   buzzer_state = digitalRead(BUZZER_INT);
 }
+
+/**
+ * @brief Self Stop Interrupt service routine
+ * 
+ */
 void self_stop_Isr(){
   self_stop_state = digitalRead(SELF_STOP_INT);
 }
 
+/**
+ * @brief Print the start msg
+ * Then wait 1.5sec and then clears the display
+ * 
+ */
 void print_start_msg(){
   lcd.setCursor(2, 0);
   lcd.print("Water Level");
@@ -119,11 +133,19 @@ void print_start_msg(){
   lcd.clear();
 }
 
+/**
+ * @brief Print Calculating 
+ * 
+ */
 void print_calculating(){
   lcd.setCursor(0, 0);
   lcd.print("Calculating...");
 }
 
+/**
+ * @brief Read the sensor value from DHT11 and
+ * Set the temp, humidity and heat_index global variable
+ */
 void get_temp_humidity(){
   float h = dht.readHumidity();
   float t = dht.readTemperature();
@@ -137,9 +159,30 @@ void get_temp_humidity(){
     temp = t;
     humidity = h;
     heat_index = dht.computeHeatIndex(t, h, false);
+
+    #if SERIAL_DEBUG
+      Serial.print("Humidity: ");
+      Serial.print(humidity);
+      Serial.println("%");
+      Serial.print("Temperature: ");
+      Serial.print(temp);
+      Serial.println("°C");
+      Serial.print("Heat Index: ");
+      Serial.print(heat_index);
+      Serial.println("°C");
+    #endif
   }
 }
 
+/**
+ * @brief Calculates the water percentage
+ * Uses distance global variable
+ * 
+ * Writes the water_percentage global variable
+ * 
+ * @note If the percentage is greater than 100, make the value 100
+ * 
+ */
 void calculate_water_percentage(){
   int x = (TANK_BUTTOM_DISTANCE - distance)/(TANK_BUTTOM_DISTANCE - TANK_TOP_DISTANCE) * 100;
   if(x >= 100){
@@ -149,6 +192,13 @@ void calculate_water_percentage(){
   }
 }
 
+
+/**
+ * @brief Calculates the volume of water in liters
+ * Uses the distance global variable
+ * 
+ * Writes the ltr global variable
+ */
 void calulate_volume(){
   double volume = PI * TANK_REDIUS * TANK_REDIUS * (TANK_BUTTOM_DISTANCE - distance);
   ltr = volume / 1000.0;
@@ -164,7 +214,10 @@ void calulate_volume(){
   #endif
 }
 
-
+/**
+ * @brief Set the tank distance global variable
+ * 
+ */
 void set_tank_distance(){
   distance = get_distance_median();
   
