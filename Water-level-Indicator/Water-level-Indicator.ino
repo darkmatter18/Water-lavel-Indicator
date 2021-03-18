@@ -80,6 +80,9 @@ void setup(){
   // Start the DHT11
   dht.begin();
 
+  print_start_msg();
+  
+
 }
 
 void loop(){
@@ -102,6 +105,12 @@ void self_stop_Isr(){
   self_stop_state = digitalRead(SELF_STOP_INT);
 }
 
+void print_start_msg(){
+  lcd.setCursor(2, 0);
+  lcd.print("Water Level");
+  lcd.setCursor(5, 1);
+  lcd.print("Meter");
+}
 
 
 // void calculate_water_percentage(){

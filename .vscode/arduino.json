@@ -1,6 +1,7 @@
 {
     "programmer": "AVR ISP",
-    "board": "arduino:avr:pro",
-    "configuration": "cpu=16MHzatmega328",
-    "sketch": "Water-level-Indicator\\Water-lavel-Indicator.ino"
+    "board": "arduino:avr:nano",
+    "configuration": "cpu=atmega328old",
+    "sketch": "Water-level-Indicator\\Water-level-Indicator.ino",
+    "port": "COM4"
 }
