@@ -69,10 +69,6 @@ void setup(){
   buzzer_state = digitalRead(BUZZER_INT);
   self_stop_state = digitalRead(SELF_STOP_INT);
 
-  #if SERIAL_DEBUG
-    Serial.begin(9600);
-  #endif
-
   // Start the LCD
   lcd.begin();
   lcd.backlight();
@@ -81,8 +77,11 @@ void setup(){
   dht.begin();
 
   print_start_msg();
-  
+  print_calculating();
 
+  #if SERIAL_DEBUG
+    Serial.begin(9600);
+  #endif
 }
 
 void loop(){
@@ -110,6 +109,14 @@ void print_start_msg(){
   lcd.print("Water Level");
   lcd.setCursor(5, 1);
   lcd.print("Meter");
+
+  delay(1500);
+  lcd.clear();
+}
+
+void print_calculating(){
+  lcd.setCursor(0, 0);
+  lcd.print("Calculating...");
 }
 
 
