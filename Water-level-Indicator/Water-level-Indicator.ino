@@ -28,7 +28,7 @@
 
 
 // Initializing the library with the numbers of the interface pins
-LiquidCrystal_I2C lcd(0x27, 16, 2);
+LiquidCrystal_I2C lcd(LCD_I2C_ADDR, LCD_WIDTH, LCD_HEIGHT);
 
 // Initializing the DHT library
 DHT_Unified dht(DHT_PIN, DHT11);
