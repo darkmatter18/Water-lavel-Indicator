@@ -39,11 +39,12 @@ byte buzzer_state = LOW;
 byte self_stop_state = LOW;
 // byte stop_delay_at_engine_off = LOW;
 // byte buzzer_state = HIGH;
-// float temp = 0;
-// float humidity = 0;
 float distance = 0;
 float ltr = 0;
 float water_percentage = 0;
+float temp = 0;
+float heat_index = 0;
+float humidity = 0;
 
 // Degree character for LCD display
 byte degree[] = {
@@ -90,6 +91,15 @@ void loop(){
   set_tank_distance();
   calulate_volume();
   calculate_water_percentage();
+  #if SERIAL_DEBUG
+    Serial.println("Tank Calculation Done!");
+  #endif
+
+  // Read data from the DHT sensor, modify the global varibles (temp, humidity)
+    get_temp_humidity();
+    #if SERIAL_DEBUG
+      Serial.println("Temp Humidity Done!");
+    #endif
 }
 
 void buzzer_Isr(){
@@ -114,6 +124,21 @@ void print_calculating(){
   lcd.print("Calculating...");
 }
 
+void get_temp_humidity(){
+  float h = dht.readHumidity();
+  float t = dht.readTemperature();
+
+  if (isnan(h) || isnan(t)) {
+    Serial.println("Failed to read from DHT sensor!");
+    temp = humidity = -1;
+    heat_index = -1;
+    return;
+  } else {
+    temp = t;
+    humidity = h;
+    heat_index = dht.computeHeatIndex(t, h, false);
+  }
+}
 
 void calculate_water_percentage(){
   int x = (TANK_BUTTOM_DISTANCE - distance)/(TANK_BUTTOM_DISTANCE - TANK_TOP_DISTANCE) * 100;
