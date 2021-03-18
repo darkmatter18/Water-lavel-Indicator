@@ -72,6 +72,14 @@ void setup(){
   #if SERIAL_DEBUG
     Serial.begin(9600);
   #endif
+
+  // Start the LCD
+  lcd.begin();
+  lcd.backlight();
+
+  // Start the DHT11
+  dht.begin();
+
 }
 
 void loop(){
