@@ -46,18 +46,6 @@ float temp = 0;
 float heat_index = 0;
 float humidity = 0;
 
-// Degree character for LCD display
-byte degree[] = {
-  B11100,
-  B10100,
-  B11100,
-  B00000,
-  B00000,
-  B00000,
-  B00000,
-  B00000
-};
-
 void setup(){
   pinMode(TRIGGER_PIN, OUTPUT);       // Sets the TRIGGER_PIN as an OUTPUT (5)
   pinMode(ECHO_PIN, INPUT);           // Sets the ECHO_PIN as an INPUT (4)
@@ -72,7 +60,6 @@ void setup(){
 
   // Start the LCD
   lcd.begin();
-  lcd.createChar(0, degree);
   lcd.backlight();
 
   // Start the DHT11
@@ -96,10 +83,17 @@ void loop(){
   #endif
 
   // Read data from the DHT sensor, modify the global varibles (temp, humidity)
-    get_temp_humidity();
-    #if SERIAL_DEBUG
-      Serial.println("Temp Humidity Done!");
-    #endif
+  get_temp_humidity();
+  #if SERIAL_DEBUG
+    Serial.println("Temp Humidity Done!");
+  #endif
+
+  // clears the display and print the global variables in the display, uses (distance, ltr, temp, humidity)
+  lcd.clear();
+  print_data_to_lcd();
+  #if SERIAL_DEBUG
+    Serial.println("Printing Done!");
+  #endif
 }
 
 /**
@@ -116,6 +110,35 @@ void buzzer_Isr(){
  */
 void self_stop_Isr(){
   self_stop_state = digitalRead(SELF_STOP_INT);
+}
+
+/**
+ * @brief Printing DATA
+ * 
+ */
+void print_data_to_lcd(){
+  lcd.setCursor(0, 0);
+  lcd.print(temp, 1);
+  lcd.print("C");
+
+  lcd.setCursor(7, 0);
+  lcd.print(round(humidity));
+  lcd.print("%");
+
+  lcd.setCursor(11, 0);
+  lcd.print(heat_index, 1);
+  lcd.print("C");
+
+  lcd.setCursor(1, 1);
+  lcd.print(round(ltr));
+  lcd.print("L");
+
+  lcd.setCursor(6, 1);
+  lcd.print("TANK");
+
+  lcd.setCursor(11, 1);
+  lcd.print(round(water_percentage));
+  lcd.print("%");
 }
 
 /**
