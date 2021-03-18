@@ -41,9 +41,9 @@ byte self_stop_state = LOW;
 // byte buzzer_state = HIGH;
 // float temp = 0;
 // float humidity = 0;
-// float water_percentage = 0;
 float distance = 0;
 float ltr = 0;
+float water_percentage = 0;
 
 // Degree character for LCD display
 byte degree[] = {
@@ -89,7 +89,7 @@ void loop(){
   // Read data from the Sonar sensor and calculate the water volume, modify the global varibles (distance, ltr)
   set_tank_distance();
   calulate_volume();
-  // calculate_water_percentage();
+  calculate_water_percentage();
 }
 
 void buzzer_Isr(){
@@ -115,9 +115,14 @@ void print_calculating(){
 }
 
 
-// void calculate_water_percentage(){
-//   water_percentage = (TANK_BUTTOM_DISTANCE - distance)/(TANK_BUTTOM_DISTANCE - TANK_TOP_DISTANCE) * 100;
-// }
+void calculate_water_percentage(){
+  int x = (TANK_BUTTOM_DISTANCE - distance)/(TANK_BUTTOM_DISTANCE - TANK_TOP_DISTANCE) * 100;
+  if(x >= 100){
+    water_percentage = 100;
+  } else {
+    water_percentage = x;
+  }
+}
 
 void calulate_volume(){
   double volume = PI * TANK_REDIUS * TANK_REDIUS * (TANK_BUTTOM_DISTANCE - distance);
