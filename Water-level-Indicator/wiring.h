@@ -16,5 +16,5 @@
 #define BUZZER_PIN A1
 
 // Interupt Pins
-#define ENGINE_INT 2
-#define BUZZER_INT 3
+#define BUZZER_INT 2
+#define SELF_STOP_INT 3

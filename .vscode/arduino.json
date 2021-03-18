@@ -1,5 +1,5 @@
 {
-    "programmer": "AVRISP mkII",
+    "programmer": "AVR ISP",
     "board": "arduino:avr:pro",
     "configuration": "cpu=16MHzatmega328",
     "sketch": "Water-level-Indicator\\Water-lavel-Indicator.ino"
