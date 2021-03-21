@@ -29,6 +29,7 @@ float humidity = 0;
 void setup(){
   pinMode(TRIGGER_PIN, OUTPUT);       // Sets the TRIGGER_PIN as an OUTPUT (5)
   pinMode(ECHO_PIN, INPUT);           // Sets the ECHO_PIN as an INPUT (4)
+  pinMode(BUZZER_PIN, OUTPUT);        // Sets the BUZZER_PIN as an INPUT (A1)
   pinMode(BUZZER_INT, INPUT_PULLUP);  // Sets the BUZZER_INT pin as INPUT_PULLUP (2)
   pinMode(SELF_STOP_INT, INPUT_PULLUP);   // Sets the BUZZER_INT pin as INPUT_PULLUP (3)
 
@@ -79,6 +80,8 @@ void loop(){
   #if SERIAL_DEBUG
     Serial.println("Printing Done!");
   #endif
+
+  buzzer_routine();
 }
 
 /**
@@ -87,6 +90,7 @@ void loop(){
  */
 void buzzer_Isr(){
   buzzer_state = digitalRead(BUZZER_INT);
+  digitalWrite(BUZZER_PIN, LOW);
   #if SERIAL_DEBUG
     Serial.println("Buzzer Interrupt Triggered");
     Serial.print("BUZZER_INT:  ");
@@ -105,6 +109,21 @@ void self_stop_Isr(){
     Serial.print("SELF_STOP_INT:  ");
     Serial.println(digitalRead(SELF_STOP_INT));
   #endif
+}
+
+/**
+ * @brief Checks for the buzzer state
+ * If the state is HIGH
+ * And if the water lavel is more than 95%
+ * Then blow the buzzer
+ * 
+ */
+void buzzer_routine(){
+  if (buzzer_state == HIGH){
+    if (water_percentage >= 95){
+      digitalWrite(BUZZER_PIN, HIGH);
+    }
+  }
 }
 
 /**
