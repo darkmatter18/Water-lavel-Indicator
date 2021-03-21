@@ -27,11 +27,12 @@ float heat_index = 0;
 float humidity = 0;
 
 void setup(){
-  pinMode(TRIGGER_PIN, OUTPUT);       // Sets the TRIGGER_PIN as an OUTPUT (5)
-  pinMode(ECHO_PIN, INPUT);           // Sets the ECHO_PIN as an INPUT (4)
-  pinMode(BUZZER_PIN, OUTPUT);        // Sets the BUZZER_PIN as an INPUT (A1)
-  pinMode(BUZZER_INT, INPUT_PULLUP);  // Sets the BUZZER_INT pin as INPUT_PULLUP (2)
-  pinMode(SELF_STOP_INT, INPUT_PULLUP);   // Sets the BUZZER_INT pin as INPUT_PULLUP (3)
+  pinMode(TRIGGER_PIN, OUTPUT);         // Sets the TRIGGER_PIN as an OUTPUT (6)
+  pinMode(ECHO_PIN, INPUT);             // Sets the ECHO_PIN as an INPUT (5)
+  pinMode(BUZZER_PIN, OUTPUT);          // Sets the BUZZER_PIN as an INPUT (A1)
+  pinMode(SELF_STOP_RELAY_PIN, OUTPUT); // Sets the SELF_STOP_RELAY_PIN as an INPUT (4)
+  pinMode(BUZZER_INT, INPUT_PULLUP);    // Sets the BUZZER_INT pin as INPUT_PULLUP (2)
+  pinMode(SELF_STOP_INT, INPUT_PULLUP); // Sets the BUZZER_INT pin as INPUT_PULLUP (3)
 
   attachInterrupt(digitalPinToInterrupt(BUZZER_INT), buzzer_Isr, CHANGE);
   attachInterrupt(digitalPinToInterrupt(SELF_STOP_INT), self_stop_Isr, CHANGE);
@@ -82,6 +83,7 @@ void loop(){
   #endif
 
   buzzer_routine();
+  self_stop_routine();
 }
 
 /**
@@ -112,9 +114,10 @@ void self_stop_Isr(){
 }
 
 /**
- * @brief Checks for the buzzer state
+ * @brief Routine for buzzer blow
+ * Checks for the buzzer state
  * If the state is HIGH
- * And if the water lavel is more than 95%
+ * And if the water lavel is more than BUZZER_THRESHOLD_PERCENTAGE
  * Then blow the buzzer
  * 
  */
@@ -124,6 +127,35 @@ void buzzer_routine(){
       digitalWrite(BUZZER_PIN, HIGH);
     }
   }
+}
+
+/**
+ * @brief Routine for Self Stop
+ * Checks for the self stop state
+ * If the state is HIGH
+ * And if the water lavel is more than STOP_THRESHOLD_PERCENTAGE
+ * Then make the self slow command
+ * 
+ */
+void self_stop_routine(){
+  if(self_stop_state == HIGH){
+    if(water_percentage >= STOP_THRESHOLD_PERCENTAGE){
+      self_stop_command();
+    }
+  }
+}
+
+/**
+ * @brief The command for self stop Relay
+ * 
+ * First HIGH the RELAY PIN
+ * wait for 1 sec
+ * Then, LOW the RELAY PIN
+ */
+void self_stop_command(){
+  digitalWrite(SELF_STOP_RELAY_PIN, HIGH);
+  delay(1000);
+  digitalWrite(SELF_STOP_RELAY_PIN, LOW);
 }
 
 /**
