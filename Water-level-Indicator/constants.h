@@ -10,3 +10,4 @@
 #define TANK_REDIUS 50
 
 #define BUZZER_THRESHOLD_PERCENTAGE 95      // The threshold percentage, after which the buzzer blows up
+#define STOP_THRESHOLD_PERCENTAGE 99        // The threshold percentage, after which the self stop commend turns on
