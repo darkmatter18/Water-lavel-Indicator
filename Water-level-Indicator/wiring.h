@@ -28,6 +28,9 @@
 // Echo Pin for ultrasonic sensor
 #define ECHO_PIN 5
 
+// Self stop Relay Pin
+#define SELF_STOP_RELAY_PIN 4
+
 //Buzzer pin
 #define BUZZER_PIN A1
 
