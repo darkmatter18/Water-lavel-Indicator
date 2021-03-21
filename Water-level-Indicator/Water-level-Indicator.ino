@@ -1,21 +1,3 @@
-/*The circuit:
- * LCD D4 pin to digital pin 9
- * LCD D5 pin to digital pin 8
- * LCD D6 pin to digital pin 7
- * LCD D7 pin to digital pin 6
- * LCD RS pin to digital pin 5
- * LCD E  pin to digital pin 4
- * LCD R/W pin to ground
- * LCD VSS pin to ground
- * LCD VCC pin to 5V
- * 10K resistor:
- * ends to +5V and ground
- * wiper to LCD VO pin (pin 3)
- * 
- * Custom Chars
- * 0 - Degree
- */
-
 #include <Wire.h> 
 #include <LiquidCrystal_I2C.h>
 #include <RunningMedian.h>
@@ -37,8 +19,6 @@ RunningMedian running_distance = RunningMedian(ITER_M);
 //Global Variables
 byte buzzer_state = LOW;
 byte self_stop_state = LOW;
-// byte stop_delay_at_engine_off = LOW;
-// byte buzzer_state = HIGH;
 float distance = 0;
 float ltr = 0;
 float water_percentage = 0;
@@ -70,6 +50,11 @@ void setup(){
 
   #if SERIAL_DEBUG
     Serial.begin(9600);
+    Serial.println("At Initialization:");
+    Serial.print("BUZZER_INT:  ");
+    Serial.println(digitalRead(BUZZER_INT));
+    Serial.print("SELF_STOP_INT:  ");
+    Serial.println(digitalRead(SELF_STOP_INT));
   #endif
 }
 
@@ -102,6 +87,11 @@ void loop(){
  */
 void buzzer_Isr(){
   buzzer_state = digitalRead(BUZZER_INT);
+  #if SERIAL_DEBUG
+    Serial.println("Buzzer Interrupt Triggered");
+    Serial.print("BUZZER_INT:  ");
+    Serial.println(digitalRead(BUZZER_INT));
+  #endif
 }
 
 /**
@@ -110,10 +100,15 @@ void buzzer_Isr(){
  */
 void self_stop_Isr(){
   self_stop_state = digitalRead(SELF_STOP_INT);
+  #if SERIAL_DEBUG
+    Serial.println("Self Stop Interrupt Triggered");
+    Serial.print("SELF_STOP_INT:  ");
+    Serial.println(digitalRead(SELF_STOP_INT));
+  #endif
 }
 
 /**
- * @brief Printing DATA
+ * @brief Printing DATA in LCD
  * 
  */
 void print_data_to_lcd(){
@@ -129,16 +124,23 @@ void print_data_to_lcd(){
   lcd.print(heat_index, 1);
   lcd.print("C");
 
-  lcd.setCursor(1, 1);
+  if (buzzer_state == HIGH){
+    lcd.setCursor(0, 1);
+    lcd.print("B");
+  }
+
+  lcd.setCursor(3, 1);
   lcd.print(round(ltr));
   lcd.print("L");
 
-  lcd.setCursor(6, 1);
-  lcd.print("TANK");
-
-  lcd.setCursor(11, 1);
+  lcd.setCursor(9, 1);
   lcd.print(round(water_percentage));
   lcd.print("%");
+
+  if (self_stop_state == HIGH){
+    lcd.setCursor(15, 1);
+    lcd.print("S");
+  }
 }
 
 /**
