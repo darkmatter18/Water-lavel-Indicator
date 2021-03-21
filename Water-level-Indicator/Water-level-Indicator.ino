@@ -120,7 +120,7 @@ void self_stop_Isr(){
  */
 void buzzer_routine(){
   if (buzzer_state == HIGH){
-    if (water_percentage >= 95){
+    if (water_percentage >= BUZZER_THRESHOLD_PERCENTAGE){
       digitalWrite(BUZZER_PIN, HIGH);
     }
   }

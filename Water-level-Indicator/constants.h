@@ -8,3 +8,5 @@
 #define TANK_BUTTOM_DISTANCE 104    // Distance of the water lavel, when the tank is empty
 #define TANK_TOP_DISTANCE 25    // Distance of the water lavel, when the tank is full
 #define TANK_REDIUS 50
+
+#define BUZZER_THRESHOLD_PERCENTAGE 95      // The threshold percentage, after which the buzzer blows up
