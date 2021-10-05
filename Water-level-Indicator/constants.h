@@ -20,6 +20,7 @@
 #define ITER_M 10 // Interation for median checking
 
 // Tank dimention
+// Dada's home
 #define TANK_BUTTOM_DISTANCE 104    // Distance of the water lavel, when the tank is empty
 #define TANK_TOP_DISTANCE 25    // Distance of the water lavel, when the tank is full
 #define TANK_REDIUS 50

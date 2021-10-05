@@ -61,6 +61,8 @@ void setup()
   pinMode(BUZZER_INT, INPUT_PULLUP);    // Sets the BUZZER_INT pin as INPUT_PULLUP (2)
   pinMode(SELF_STOP_INT, INPUT_PULLUP); // Sets the BUZZER_INT pin as INPUT_PULLUP (3)
 
+  randomSeed(analogRead(A2));
+
 #if INTERRUPT == INTERRUPT_PUSH_BUTTON
   attachInterrupt(digitalPinToInterrupt(BUZZER_INT), buzzer_Isr, FALLING);
   attachInterrupt(digitalPinToInterrupt(SELF_STOP_INT), self_stop_Isr, FALLING);

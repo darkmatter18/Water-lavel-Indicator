@@ -29,10 +29,16 @@
 #define ECHO_PIN 5
 
 // Self stop Relay Pin
+// In our home no SELF stop is used
+// In dada's home self stop is used with pin 4
 #define SELF_STOP_RELAY_PIN A1
+// #define SELF_STOP_RELAY_PIN 4
 
 //Buzzer pin
+// In our home buzzer is used with pin 4
+// In dada's home buzzer is used with pin A1
 #define BUZZER_PIN 4
+// #define BUZZER_PIN A1
 
 // Interrupt Pins
 
