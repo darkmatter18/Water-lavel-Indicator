@@ -29,10 +29,10 @@
 #define ECHO_PIN 5
 
 // Self stop Relay Pin
-#define SELF_STOP_RELAY_PIN 4
+#define SELF_STOP_RELAY_PIN A1
 
 //Buzzer pin
-#define BUZZER_PIN A1
+#define BUZZER_PIN 4
 
 // Interrupt Pins
 
