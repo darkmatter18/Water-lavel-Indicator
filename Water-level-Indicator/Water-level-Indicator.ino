@@ -1,14 +1,32 @@
-#include <Wire.h> 
-#include <LiquidCrystal_I2C.h>
 #include <RunningMedian.h>
 #include <DHT.h>
 
 #include "wiring.h"
 #include "constants.h"
 
+// Select the appropiate type of display needed for the development
+// Comment out the unused one
+// uncomment the using one
+// #define DISPLAY DISPLAY_I2C
+#define DISPLAY DISPLAY_SEEED
 
-// Initializing the library with the numbers of the interface pins
-LiquidCrystal_I2C lcd(LCD_I2C_ADDR, LCD_WIDTH, LCD_HEIGHT);
+#if DISPLAY == DISPLAY_I2C
+  #include <Wire.h> 
+  #include <LiquidCrystal_I2C.h>
+  // Initializing the library with the numbers of the interface pins
+  LiquidCrystal_I2C lcd(LCD_I2C_ADDR, LCD_WIDTH, LCD_HEIGHT);
+
+#elif DISPLAY == DISPLAY_SEEED
+  #include <Wire.h>
+  #include "rgb_lcd.h"
+  rgb_lcd lcd;
+
+#else
+  #include<LiquidCrystal.h>
+  const int rs = 12, en = 11, d4 = 5, d5 = 4, d6 = 3, d7 = 2;
+  LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
+#endif
+
 
 // Initializing the DHT library
 DHT dht(DHT_PIN, DHT11);
@@ -40,9 +58,15 @@ void setup(){
   buzzer_state = digitalRead(BUZZER_INT);
   self_stop_state = digitalRead(SELF_STOP_INT);
 
-  // Start the LCD
+  // Initialize the LCD
+  #if DISPLAY == DISPLAY_I2C
   lcd.begin();
   lcd.backlight();
+  #elif DISPLAY == DISPLAY_SEEED
+  lcd.begin(16, 2);
+  #else
+  lcd.begin(16, 2);
+  #endif
 
   // Start the DHT11
   dht.begin();

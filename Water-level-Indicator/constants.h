@@ -1,3 +1,18 @@
+/**
+ * @file constants.h
+ * @author Arkadip Bhatacharya (in2arkadipb13@gmail.com)
+ * @brief 
+ * @version 0.1
+ * @date 2021-10-05
+ * 
+ * @copyright Copyright (c) 2021
+ * 
+ */
+
+#define DISPLAY_I2C 1   // Display for I2c holds value 1
+#define DISPLAY_SEEED 2 // Display for seeed holds value 2
+
+
 #define SERIAL_DEBUG 1 //Mode for serial debug, 0 -> No debug, 1 -> Debug over serial is on
 
 // Constants for distances
