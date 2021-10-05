@@ -11,27 +11,26 @@
 #define DISPLAY DISPLAY_SEEED
 
 #if DISPLAY == DISPLAY_I2C
-  #include <Wire.h> 
-  #include <LiquidCrystal_I2C.h>
-  // Initializing the library with the numbers of the interface pins
-  LiquidCrystal_I2C lcd(LCD_I2C_ADDR, LCD_WIDTH, LCD_HEIGHT);
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+// Initializing the library with the numbers of the interface pins
+LiquidCrystal_I2C lcd(LCD_I2C_ADDR, LCD_WIDTH, LCD_HEIGHT);
 
 #elif DISPLAY == DISPLAY_SEEED
-  #include <Wire.h>
-  #include "rgb_lcd.h"
-  rgb_lcd lcd;
+#include <Wire.h>
+#include "rgb_lcd.h"
+rgb_lcd lcd;
 
 #else
-  #include<LiquidCrystal.h>
-  const int rs = 12, en = 11, d4 = 5, d5 = 4, d6 = 3, d7 = 2;
-  LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
+#include <LiquidCrystal.h>
+const int rs = 12, en = 11, d4 = 5, d5 = 4, d6 = 3, d7 = 2;
+LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 #endif
-
 
 // Initializing the DHT library
 DHT dht(DHT_PIN, DHT11);
 
-// running medium for storing distance 
+// running medium for storing distance
 RunningMedian running_distance = RunningMedian(ITER_M);
 
 //Global Variables
@@ -44,7 +43,8 @@ float temp = 0;
 float heat_index = 0;
 float humidity = 0;
 
-void setup(){
+void setup()
+{
   pinMode(TRIGGER_PIN, OUTPUT);         // Sets the TRIGGER_PIN as an OUTPUT (6)
   pinMode(ECHO_PIN, INPUT);             // Sets the ECHO_PIN as an INPUT (5)
   pinMode(BUZZER_PIN, OUTPUT);          // Sets the BUZZER_PIN as an INPUT (A1)
@@ -58,15 +58,15 @@ void setup(){
   buzzer_state = digitalRead(BUZZER_INT);
   self_stop_state = digitalRead(SELF_STOP_INT);
 
-  // Initialize the LCD
-  #if DISPLAY == DISPLAY_I2C
+// Initialize the LCD
+#if DISPLAY == DISPLAY_I2C
   lcd.begin();
   lcd.backlight();
-  #elif DISPLAY == DISPLAY_SEEED
+#elif DISPLAY == DISPLAY_SEEED
   lcd.begin(16, 2);
-  #else
+#else
   lcd.begin(16, 2);
-  #endif
+#endif
 
   // Start the DHT11
   dht.begin();
@@ -74,37 +74,38 @@ void setup(){
   print_start_msg();
   print_calculating();
 
-  #if SERIAL_DEBUG
-    Serial.begin(9600);
-    Serial.println("At Initialization:");
-    Serial.print("BUZZER_INT:  ");
-    Serial.println(digitalRead(BUZZER_INT));
-    Serial.print("SELF_STOP_INT:  ");
-    Serial.println(digitalRead(SELF_STOP_INT));
-  #endif
+#if SERIAL_DEBUG
+  Serial.begin(9600);
+  Serial.println("At Initialization:");
+  Serial.print("BUZZER_INT:  ");
+  Serial.println(digitalRead(BUZZER_INT));
+  Serial.print("SELF_STOP_INT:  ");
+  Serial.println(digitalRead(SELF_STOP_INT));
+#endif
 }
 
-void loop(){
+void loop()
+{
   // Read data from the Sonar sensor and calculate the water volume, modify the global varibles (distance, ltr)
   set_tank_distance();
   calulate_volume();
   calculate_water_percentage();
-  #if SERIAL_DEBUG
-    Serial.println("Tank Calculation Done!");
-  #endif
+#if SERIAL_DEBUG
+  Serial.println("Tank Calculation Done!");
+#endif
 
   // Read data from the DHT sensor, modify the global varibles (temp, humidity)
   get_temp_humidity();
-  #if SERIAL_DEBUG
-    Serial.println("Temp Humidity Done!");
-  #endif
+#if SERIAL_DEBUG
+  Serial.println("Temp Humidity Done!");
+#endif
 
   // clears the display and print the global variables in the display, uses (distance, ltr, temp, humidity)
   lcd.clear();
   print_data_to_lcd();
-  #if SERIAL_DEBUG
-    Serial.println("Printing Done!");
-  #endif
+#if SERIAL_DEBUG
+  Serial.println("Printing Done!");
+#endif
 
   buzzer_routine();
   self_stop_routine();
@@ -114,27 +115,29 @@ void loop(){
  * @brief Buzzer Interrupt service routine
  * 
  */
-void buzzer_Isr(){
+void buzzer_Isr()
+{
   buzzer_state = digitalRead(BUZZER_INT);
   digitalWrite(BUZZER_PIN, LOW);
-  #if SERIAL_DEBUG
-    Serial.println("Buzzer Interrupt Triggered");
-    Serial.print("BUZZER_INT:  ");
-    Serial.println(digitalRead(BUZZER_INT));
-  #endif
+#if SERIAL_DEBUG
+  Serial.println("Buzzer Interrupt Triggered");
+  Serial.print("BUZZER_INT:  ");
+  Serial.println(digitalRead(BUZZER_INT));
+#endif
 }
 
 /**
  * @brief Self Stop Interrupt service routine
  * 
  */
-void self_stop_Isr(){
+void self_stop_Isr()
+{
   self_stop_state = digitalRead(SELF_STOP_INT);
-  #if SERIAL_DEBUG
-    Serial.println("Self Stop Interrupt Triggered");
-    Serial.print("SELF_STOP_INT:  ");
-    Serial.println(digitalRead(SELF_STOP_INT));
-  #endif
+#if SERIAL_DEBUG
+  Serial.println("Self Stop Interrupt Triggered");
+  Serial.print("SELF_STOP_INT:  ");
+  Serial.println(digitalRead(SELF_STOP_INT));
+#endif
 }
 
 /**
@@ -145,9 +148,12 @@ void self_stop_Isr(){
  * Then blow the buzzer
  * 
  */
-void buzzer_routine(){
-  if (buzzer_state == HIGH){
-    if (water_percentage >= BUZZER_THRESHOLD_PERCENTAGE){
+void buzzer_routine()
+{
+  if (buzzer_state == HIGH)
+  {
+    if (water_percentage >= BUZZER_THRESHOLD_PERCENTAGE)
+    {
       digitalWrite(BUZZER_PIN, HIGH);
     }
   }
@@ -161,9 +167,12 @@ void buzzer_routine(){
  * Then make the self slow command
  * 
  */
-void self_stop_routine(){
-  if(self_stop_state == HIGH){
-    if(water_percentage >= STOP_THRESHOLD_PERCENTAGE){
+void self_stop_routine()
+{
+  if (self_stop_state == HIGH)
+  {
+    if (water_percentage >= STOP_THRESHOLD_PERCENTAGE)
+    {
       self_stop_command();
     }
   }
@@ -176,7 +185,8 @@ void self_stop_routine(){
  * wait for 1 sec
  * Then, LOW the RELAY PIN
  */
-void self_stop_command(){
+void self_stop_command()
+{
   digitalWrite(SELF_STOP_RELAY_PIN, HIGH);
   delay(1000);
   digitalWrite(SELF_STOP_RELAY_PIN, LOW);
@@ -186,7 +196,8 @@ void self_stop_command(){
  * @brief Printing DATA in LCD
  * 
  */
-void print_data_to_lcd(){
+void print_data_to_lcd()
+{
   lcd.setCursor(0, 0);
   lcd.print(temp, 1);
   lcd.print("C");
@@ -199,7 +210,8 @@ void print_data_to_lcd(){
   lcd.print(heat_index, 1);
   lcd.print("C");
 
-  if (buzzer_state == HIGH){
+  if (buzzer_state == HIGH)
+  {
     lcd.setCursor(0, 1);
     lcd.print("B");
   }
@@ -212,7 +224,8 @@ void print_data_to_lcd(){
   lcd.print(round(water_percentage));
   lcd.print("%");
 
-  if (self_stop_state == HIGH){
+  if (self_stop_state == HIGH)
+  {
     lcd.setCursor(15, 1);
     lcd.print("S");
   }
@@ -223,11 +236,45 @@ void print_data_to_lcd(){
  * Then wait 1.5sec and then clears the display
  * 
  */
-void print_start_msg(){
-  lcd.setCursor(2, 0);
-  lcd.print("Water Level");
-  lcd.setCursor(5, 1);
-  lcd.print("Meter");
+void print_start_msg()
+{
+  switch (random(1, 5))
+  {
+  case 1:
+    lcd.setCursor(2, 0);
+    lcd.print("Water Level");
+    lcd.setCursor(5, 1);
+    lcd.print("Meter");
+    break;
+
+  case 2:
+    lcd.setCursor(2, 0);
+    lcd.print("Save Water");
+    lcd.setCursor(3, 1);
+    lcd.print("Save Life");
+    break;
+
+  case 3:
+    lcd.setCursor(3, 0);
+    lcd.print("No Water");
+    lcd.setCursor(4, 1);
+    lcd.print("No Life");
+    break;
+
+  case 4:
+    lcd.setCursor(1, 0);
+    lcd.print("Water is Life");
+    lcd.setCursor(0, 1);
+    lcd.print("Don't waste it");
+    break;
+
+  default:
+    lcd.setCursor(2, 0);
+    lcd.print("Water Level");
+    lcd.setCursor(5, 1);
+    lcd.print("Meter");
+    break;
+  }
 
   delay(1500);
   lcd.clear();
@@ -237,7 +284,8 @@ void print_start_msg(){
  * @brief Print Calculating 
  * 
  */
-void print_calculating(){
+void print_calculating()
+{
   lcd.setCursor(0, 0);
   lcd.print("Calculating...");
 }
@@ -246,31 +294,35 @@ void print_calculating(){
  * @brief Read the sensor value from DHT11 and
  * Set the temp, humidity and heat_index global variable
  */
-void get_temp_humidity(){
+void get_temp_humidity()
+{
   float h = dht.readHumidity();
   float t = dht.readTemperature();
 
-  if (isnan(h) || isnan(t)) {
+  if (isnan(h) || isnan(t))
+  {
     Serial.println("Failed to read from DHT sensor!");
     temp = humidity = -1;
     heat_index = -1;
     return;
-  } else {
+  }
+  else
+  {
     temp = t;
     humidity = h;
     heat_index = dht.computeHeatIndex(t, h, false);
 
-    #if SERIAL_DEBUG
-      Serial.print("Humidity: ");
-      Serial.print(humidity);
-      Serial.println("%");
-      Serial.print("Temperature: ");
-      Serial.print(temp);
-      Serial.println("°C");
-      Serial.print("Heat Index: ");
-      Serial.print(heat_index);
-      Serial.println("°C");
-    #endif
+#if SERIAL_DEBUG
+    Serial.print("Humidity: ");
+    Serial.print(humidity);
+    Serial.println("%");
+    Serial.print("Temperature: ");
+    Serial.print(temp);
+    Serial.println("°C");
+    Serial.print("Heat Index: ");
+    Serial.print(heat_index);
+    Serial.println("°C");
+#endif
   }
 }
 
@@ -283,15 +335,18 @@ void get_temp_humidity(){
  * @note If the percentage is greater than 100, make the value 100
  * 
  */
-void calculate_water_percentage(){
-  int x = (TANK_BUTTOM_DISTANCE - distance)/(TANK_BUTTOM_DISTANCE - TANK_TOP_DISTANCE) * 100;
-  if(x >= 100){
+void calculate_water_percentage()
+{
+  int x = (TANK_BUTTOM_DISTANCE - distance) / (TANK_BUTTOM_DISTANCE - TANK_TOP_DISTANCE) * 100;
+  if (x >= 100)
+  {
     water_percentage = 100;
-  } else {
+  }
+  else
+  {
     water_percentage = x;
   }
 }
-
 
 /**
  * @brief Calculates the volume of water in liters
@@ -299,32 +354,34 @@ void calculate_water_percentage(){
  * 
  * Writes the ltr global variable
  */
-void calulate_volume(){
+void calulate_volume()
+{
   double volume = PI * TANK_REDIUS * TANK_REDIUS * (TANK_BUTTOM_DISTANCE - distance);
   ltr = volume / 1000.0;
 
-  #if SERIAL_DEBUG
-    Serial.print("Volume: ");
-    Serial.print(volume);
-    Serial.println("cc");
+#if SERIAL_DEBUG
+  Serial.print("Volume: ");
+  Serial.print(volume);
+  Serial.println("cc");
 
-    Serial.print("LTR: ");
-    Serial.print(ltr);
-    Serial.println("ltr");
-  #endif
+  Serial.print("LTR: ");
+  Serial.print(ltr);
+  Serial.println("ltr");
+#endif
 }
 
 /**
  * @brief Set the tank distance global variable
  * 
  */
-void set_tank_distance(){
+void set_tank_distance()
+{
   distance = get_distance_median();
-  
-  #if SERIAL_DEBUG
-    Serial.print(distance);
-    Serial.println("cm");
-  #endif
+
+#if SERIAL_DEBUG
+  Serial.print(distance);
+  Serial.println("cm");
+#endif
 }
 
 /**
@@ -333,8 +390,10 @@ void set_tank_distance(){
  * 
  * @return float (distance in cm)
  */
-float get_distance_median(){
-  for(int i=0; i<ITER_M; i++){
+float get_distance_median()
+{
+  for (int i = 0; i < ITER_M; i++)
+  {
     // Calculating the distance
     unsigned long single_distance = measure_single_duration() * SPEED_OF_SOUND / 2;
 
@@ -346,13 +405,13 @@ float get_distance_median(){
   // Get the median distance and clear the buffer
   float distance = running_distance.getMedian();
   running_distance.clear();
-  
-  #if SERIAL_DEBUG
-    Serial.print("Distance: ");
-    Serial.print(distance);
-    Serial.println(" cm");
-  #endif
-  
+
+#if SERIAL_DEBUG
+  Serial.print("Distance: ");
+  Serial.print(distance);
+  Serial.println(" cm");
+#endif
+
   return distance;
 }
 
@@ -363,19 +422,20 @@ float get_distance_median(){
  * 
  * @return unsigned long (duration in micro second)
  */
-unsigned long measure_single_duration(){
-    digitalWrite(TRIGGER_PIN, LOW);
-    delayMicroseconds(2);
-    // Sets the trigPin HIGH (ACTIVE) for 10 microseconds
-    digitalWrite(TRIGGER_PIN, HIGH);
-    delayMicroseconds(10);
-    digitalWrite(TRIGGER_PIN, LOW);
-    // Reads the echoPin, returns the sound wave travel time in microseconds
-    unsigned long d = pulseIn(ECHO_PIN, HIGH);
-    
-    #if SERIAL_DEBUG
-      Serial.print("duration");
-      Serial.println(d);
-    #endif
-    return d;
+unsigned long measure_single_duration()
+{
+  digitalWrite(TRIGGER_PIN, LOW);
+  delayMicroseconds(2);
+  // Sets the trigPin HIGH (ACTIVE) for 10 microseconds
+  digitalWrite(TRIGGER_PIN, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIGGER_PIN, LOW);
+  // Reads the echoPin, returns the sound wave travel time in microseconds
+  unsigned long d = pulseIn(ECHO_PIN, HIGH);
+
+#if SERIAL_DEBUG
+  Serial.print("duration");
+  Serial.println(d);
+#endif
+  return d;
 }
