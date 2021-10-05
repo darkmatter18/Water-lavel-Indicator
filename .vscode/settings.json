@@ -1,0 +1,9 @@
+{
+    "files.associations": {
+        "*.ino": "cpp",
+        "ostream": "cpp",
+        "xlocmon": "cpp",
+        "xlocnum": "cpp",
+        "xloctime": "cpp"
+    }
+}
