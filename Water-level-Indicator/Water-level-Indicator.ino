@@ -3,12 +3,21 @@
 
 #include "wiring.h"
 #include "constants.h"
+#include <EEPROM.h>
 
 // Select the appropiate type of display needed for the development
 // Comment out the unused one
 // uncomment the using one
-// #define DISPLAY DISPLAY_I2C
-#define DISPLAY DISPLAY_SEEED
+// #define DISPLAY DISPLAY_I2C    // Uncomment this if you are using a I2C diaplay
+#define DISPLAY DISPLAY_SEEED // Uncomment this if you are using a seeed grove display
+// Comment both if you are using a normal display
+
+// *********** Interrupts ******************************************
+// Select the appropiate type of inturrept for the development
+// Comment out the unused one
+// uncomment the using one
+#define INTERRUPT INTERRUPT_PUSH_BUTTON // Uncomment this if you are using push buttons in interrupt
+//#define INTERRUPT INTERRUPT_SLIDE_BUTTON  // Uncomment this if you are using sliding buttons in interrupt
 
 #if DISPLAY == DISPLAY_I2C
 #include <Wire.h>
@@ -52,11 +61,18 @@ void setup()
   pinMode(BUZZER_INT, INPUT_PULLUP);    // Sets the BUZZER_INT pin as INPUT_PULLUP (2)
   pinMode(SELF_STOP_INT, INPUT_PULLUP); // Sets the BUZZER_INT pin as INPUT_PULLUP (3)
 
+#if INTERRUPT == INTERRUPT_PUSH_BUTTON
+  attachInterrupt(digitalPinToInterrupt(BUZZER_INT), buzzer_Isr, FALLING);
+  attachInterrupt(digitalPinToInterrupt(SELF_STOP_INT), self_stop_Isr, FALLING);
+  buzzer_state = EEPROM.read(EEPROM_BUZZER_INT_ADDR);
+  self_stop_state = EEPROM.read(EEPROM_SELF_STOP_INT_ADDR);
+#elif INTERRUPT == INTERRUPT_SLIDE_BUTTON
   attachInterrupt(digitalPinToInterrupt(BUZZER_INT), buzzer_Isr, CHANGE);
   attachInterrupt(digitalPinToInterrupt(SELF_STOP_INT), self_stop_Isr, CHANGE);
 
   buzzer_state = digitalRead(BUZZER_INT);
   self_stop_state = digitalRead(SELF_STOP_INT);
+#endif
 
 // Initialize the LCD
 #if DISPLAY == DISPLAY_I2C
@@ -76,11 +92,24 @@ void setup()
 
 #if SERIAL_DEBUG
   Serial.begin(9600);
+#endif
+
+#if SERIAL_DEBUG
+#if INTERRUPT == INTERRUPT_PUSH_BUTTON
+  Serial.println("At Initialization:");
+  Serial.print("BUZZER_INT:  ");
+  Serial.println(buzzer_state);
+  Serial.print("SELF_STOP_INT:  ");
+  Serial.println(self_stop_state);
+#elif INTERRUPT == INTERRUPT_SLIDE_BUTTON
   Serial.println("At Initialization:");
   Serial.print("BUZZER_INT:  ");
   Serial.println(digitalRead(BUZZER_INT));
   Serial.print("SELF_STOP_INT:  ");
   Serial.println(digitalRead(SELF_STOP_INT));
+#else
+  Serial.println("No interrupt is added");
+#endif
 #endif
 }
 
@@ -117,12 +146,17 @@ void loop()
  */
 void buzzer_Isr()
 {
+#if INTERRUPT == INTERRUPT_PUSH_BUTTON
+  buzzer_state = buzzer_state == LOW ? HIGH : LOW;
+  EEPROM.write(EEPROM_BUZZER_INT_ADDR, buzzer_state);
+#elif INTERRUPT == INTERRUPT_SLIDE_BUTTON
   buzzer_state = digitalRead(BUZZER_INT);
   digitalWrite(BUZZER_PIN, LOW);
+#endif
 #if SERIAL_DEBUG
   Serial.println("Buzzer Interrupt Triggered");
   Serial.print("BUZZER_INT:  ");
-  Serial.println(digitalRead(BUZZER_INT));
+  Serial.println(buzzer_state);
 #endif
 }
 
@@ -132,11 +166,17 @@ void buzzer_Isr()
  */
 void self_stop_Isr()
 {
+#if INTERRUPT == INTERRUPT_PUSH_BUTTON
+  self_stop_state = self_stop_state == LOW ? HIGH : LOW;
+  EEPROM.write(EEPROM_SELF_STOP_INT_ADDR, self_stop_state);
+#elif INTERRUPT == INTERRUPT_SLIDE_BUTTON
   self_stop_state = digitalRead(SELF_STOP_INT);
+#endif
+
 #if SERIAL_DEBUG
   Serial.println("Self Stop Interrupt Triggered");
   Serial.print("SELF_STOP_INT:  ");
-  Serial.println(digitalRead(SELF_STOP_INT));
+  Serial.println(self_stop_state);
 #endif
 }
 
